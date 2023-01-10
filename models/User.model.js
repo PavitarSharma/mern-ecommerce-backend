@@ -70,7 +70,7 @@ const userSchema = new mongoose.Schema(
     },
 
     phone: {
-      type: String,
+      type: Number,
     },
 
     status: {
@@ -111,7 +111,7 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    
+
     blocked: {
       type: Boolean,
       default: false,
