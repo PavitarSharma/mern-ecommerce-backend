@@ -8,6 +8,10 @@ import cookieParser from "cookie-parser";
 import createError from "http-errors";
 import mongoose from "mongoose";
 
+// routes
+import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/auth.routes.js";
+
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -53,6 +57,10 @@ app.use(cookieParser());
 app.get("/", (req, res, next) => {
   res.json({ message: "Server Started Successfully..." });
 });
+
+//routes 
+app.use("/api/v2/auth", authRoutes);
+app.use("/api/v2/user", userRoutes);
 
 app.use(async (req, res, next) => {
   //   const error = new Error("Not found");
