@@ -7,6 +7,7 @@ import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import createError from "http-errors";
 import mongoose from "mongoose";
+import fileUpload from "express-fileupload";
 
 // routes
 import authRoutes from "./routes/auth.routes.js";
@@ -50,22 +51,21 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
   app.use(morgan("tiny"));
 }
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
+app.use(fileUpload({ useTempFiles: true }));
 
 app.get("/", (req, res, next) => {
   res.json({ message: "Server Started Successfully..." });
 });
 
-//routes 
+//routes
 app.use("/api/v2/auth", authRoutes);
 app.use("/api/v2/user", userRoutes);
 
 app.use(async (req, res, next) => {
-  //   const error = new Error("Not found");
-  //   error.status = 404;
-  //   next(error);
   next(createError.NotFound());
 });
 
