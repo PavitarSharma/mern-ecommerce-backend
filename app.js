@@ -12,6 +12,7 @@ import fileUpload from "express-fileupload";
 // routes
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/auth.routes.js";
+import { verifyAccessToken } from "./helpers/jwt.helper.js";
 
 dotenv.config();
 const app = express();
@@ -57,13 +58,14 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(fileUpload({ useTempFiles: true }));
 
-app.get("/", (req, res, next) => {
+
+app.get("/",verifyAccessToken, (req, res, next) => {
   res.json({ message: "Server Started Successfully..." });
 });
 
 //routes
-app.use("/api/v2/auth", authRoutes);
-app.use("/api/v2/user", userRoutes);
+app.use("/auth", authRoutes);
+app.use("/user", userRoutes);
 
 app.use(async (req, res, next) => {
   next(createError.NotFound());

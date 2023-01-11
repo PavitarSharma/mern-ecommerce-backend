@@ -1,7 +1,12 @@
 import User from "../models/User.model.js";
 import cloudinary from "../helpers/cloudinary.js";
-import { signUpSchema } from "../helpers/validation/user.validation.js";
+import jwt from "jsonwebtoken";
+import {
+  signInSchema,
+  signUpSchema,
+} from "../helpers/validation/user.validation.js";
 import createError from "http-errors";
+import { signAccessToken, signRefreshToken } from "../helpers/jwt.helper.js";
 
 export const signUp = async (req, res, next) => {
   try {
@@ -10,13 +15,13 @@ export const signUp = async (req, res, next) => {
       return res.status(400).json(error.details[0].message);
     }
 
-    const { username, email, password, avatar } = req.body;
+    const { username, email, password } = req.body;
 
     const doesExit = await User.findOne({ email: email });
     if (doesExit) {
       throw createError.Conflict("This email is already exits!");
     }
-const file = req.files.avatar
+    const file = req.files.avatar;
 
     const myCloud = await cloudinary.uploader.upload(file.tempFilePath, {
       public_id: `${Date.now()}`,
@@ -30,14 +35,24 @@ const file = req.files.avatar
       avatar: { public_id: myCloud.public_id, url: myCloud.secure_url },
     });
 
-    const result = await user.save();
+    await user.save();
+    const accessToken = await signAccessToken(user);
+    const refreshToken = await signRefreshToken(user);
+
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true, //accessible only by web server
+      secure: true, //https
+      sameSite: "None", //cross-site cookie
+      maxAge: 30 * 24 * 60 * 60 * 1000, //cookie expiry: set to match rT
+    });
 
     res.status(200).json({
       message: "User registeration successfully done",
-      result,
+      user,
+      accessToken,
+      refreshToken,
     });
   } catch (error) {
-
     if (error.isJoi === true) error.status = 422;
     next(error);
   }
@@ -45,10 +60,74 @@ const file = req.files.avatar
 
 export const signIn = async (req, res, next) => {
   try {
-    res.json({
-      message: "Sign in user",
+    const { error } = signInSchema(req.body);
+    if (error) {
+      return res.status(400).json(error.details[0].message);
+    }
+
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) throw createError.NotFound("User not found");
+
+    const isMatchPassword = await user.isValidPassword(req.body.password);
+
+    if (!isMatchPassword)
+      throw createError.Unauthorized("Username/password not valid");
+
+    const accessToken = await signAccessToken(user);
+    const refreshToken = await signRefreshToken(user);
+
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true, //accessible only by web server
+      secure: true, //https
+      sameSite: "None", //cross-site cookie
+      maxAge: 30 * 24 * 60 * 60 * 1000, //cookie expiry: set to match rT
     });
-  } catch (error) {}
+ 
+
+    const { password, ...data } = user._doc;
+    res.status(200).json({
+      message: "User looged in successfully",
+      accessToken,
+      refreshToken,
+      data,
+    });
+  } catch (error) {
+    if (error.isJoi === true) error.status = 422;
+    next(error);
+  }
+};
+
+export const refreshToken = async (req, res, next) => {
+  try {
+    const cookies = req.cookies;
+
+    if (!cookies?.jwt) {
+      throw createError.Unauthorized();
+    }
+    // res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true });
+
+    const refreshToken = cookies.jwt;
+    jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET,
+      async (err, payload) => {
+        if (err) throw createError.Forbidden();
+
+        const user = await User.findById({ _id: payload._id }).exec();
+
+        if (!user) throw createError.Unauthorized();
+        const accessToken = await signAccessToken(user);
+        res.status(200).json({
+          accessToken,
+        });
+      }
+    );
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
 export const googleAuth = async (req, res, next) => {
@@ -105,4 +184,11 @@ export const verificationEmail = async (req, res, next) => {
       message: "Sign up user with Google",
     });
   } catch (error) {}
+};
+
+export const logout = (req, res) => {
+  const cookies = req.cookies;
+  if (!cookies?.jwt) return res.sendStatus(204); //No content
+  res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true });
+  res.json({ message: "User logout successfully" });
 };

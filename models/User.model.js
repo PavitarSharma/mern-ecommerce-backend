@@ -24,7 +24,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please enter the password"],
       minLength: [8, "Password should be greater than 8 characters"],
-      select: false,
     },
 
     avatar: {
@@ -137,6 +136,7 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.isValidPassword = async function (password) {
   try {
     return await bcrypt.compare(password, this.password);
+
   } catch (error) {
     throw error;
   }
