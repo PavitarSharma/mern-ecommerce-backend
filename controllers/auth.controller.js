@@ -78,9 +78,7 @@ export const signIn = async (req, res, next) => {
     const refreshToken = await signRefreshToken(user);
 
     res.cookie("jwt", refreshToken, {
-      httpOnly: true, //accessible only by web server
-      secure: true, //https
-      sameSite: "None", //cross-site cookie
+      httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000, //cookie expiry: set to match rT
     });
  
@@ -101,6 +99,7 @@ export const signIn = async (req, res, next) => {
 export const refreshToken = async (req, res, next) => {
   try {
     const cookies = req.cookies;
+ 
 
     if (!cookies?.jwt) {
       throw createError.Unauthorized();
@@ -114,7 +113,7 @@ export const refreshToken = async (req, res, next) => {
       async (err, payload) => {
         if (err) throw createError.Forbidden();
 
-        const user = await User.findById({ _id: payload._id }).exec();
+        const user = await User.findById({ _id: payload.id }).exec();
 
         if (!user) throw createError.Unauthorized();
         const accessToken = await signAccessToken(user);

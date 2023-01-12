@@ -16,6 +16,6 @@ router.get("/refresh-token", refreshToken)
 
 router.post("/login-otp", loginWithOTP);
 
-router.post("/logout", logout);
+router.delete("/logout", logout);
 
 export default router;

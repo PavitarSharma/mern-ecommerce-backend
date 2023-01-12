@@ -12,7 +12,7 @@ export const signAccessToken = (user) => {
 
     const secret = process.env.ACCESS_TOKEN_SECRET;
     const options = {
-      expiresIn: "20s",
+      expiresIn: "1h",
       issuer: "www.e-shop.com",
     };
     jwt.sign(payload, secret, options, (err, token) => {

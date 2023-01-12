@@ -116,6 +116,7 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
   },
   {
     timestamps: true,
@@ -136,7 +137,6 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.isValidPassword = async function (password) {
   try {
     return await bcrypt.compare(password, this.password);
-
   } catch (error) {
     throw error;
   }
