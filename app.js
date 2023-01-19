@@ -12,7 +12,9 @@ import fileUpload from "express-fileupload";
 // routes
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/auth.routes.js";
+import categoryRoutes from "./routes/category.routes.js";
 import { verifyAccessToken } from "./helpers/jwt.helper.js";
+import { errorMiddleware } from "./middlewares/error.js";
 
 dotenv.config();
 const app = express();
@@ -58,14 +60,14 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(fileUpload({ useTempFiles: true }));
 
-
-app.get("/",verifyAccessToken, (req, res, next) => {
+app.get("/", verifyAccessToken, (req, res, next) => {
   res.json({ message: "Server Started Successfully..." });
 });
 
 //routes
-app.use("/auth", authRoutes);
-app.use("/user", userRoutes);
+app.use("api/v1/auth", authRoutes);
+app.use("/api/v1/user", userRoutes);
+app.use("/api/v1", categoryRoutes);
 
 app.use(async (req, res, next) => {
   next(createError.NotFound());
@@ -80,5 +82,7 @@ app.use(async (err, req, res, next) => {
     },
   });
 });
+
+app.use(errorMiddleware)
 
 app.listen(PORT, console.log(`Server running on port ${PORT}...`));
