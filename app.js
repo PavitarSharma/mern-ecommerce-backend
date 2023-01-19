@@ -13,6 +13,8 @@ import fileUpload from "express-fileupload";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/auth.routes.js";
 import categoryRoutes from "./routes/category.routes.js";
+import brandRoutes from "./routes/brand.routes.js";
+
 import { verifyAccessToken } from "./helpers/jwt.helper.js";
 import { errorMiddleware } from "./middlewares/error.js";
 
@@ -68,6 +70,7 @@ app.get("/", verifyAccessToken, (req, res, next) => {
 app.use("api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1", categoryRoutes);
+app.use("/api/v1", brandRoutes);
 
 app.use(async (req, res, next) => {
   next(createError.NotFound());
@@ -83,6 +86,6 @@ app.use(async (err, req, res, next) => {
   });
 });
 
-app.use(errorMiddleware)
+app.use(errorMiddleware);
 
 app.listen(PORT, console.log(`Server running on port ${PORT}...`));

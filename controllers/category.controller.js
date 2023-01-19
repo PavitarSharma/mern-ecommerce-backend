@@ -13,7 +13,7 @@ export const addCategory = asyncHandler(async (req, res) => {
 
 export const getCategories = asyncHandler(async (req, res) => {
   const categories = await Category.find();
-  res.status(201).json({
+  res.status(200).json({
     success: true,
     categories,
   });
@@ -24,7 +24,7 @@ export const getSingleCategory = asyncHandler(async (req, res, next) => {
   if (!category) {
     return next(new ErrorHandler("Category not found", 404));
   }
-  res.status(201).json({
+  res.status(200).json({
     success: true,
     category,
   });
@@ -53,7 +53,7 @@ export const deleteCategory = asyncHandler(async (req, res) => {
   }
 
   await category.remove();
-  res.status(201).json({
+  res.status(200).json({
     success: true,
     message: "Category deleted successfully",
   });
