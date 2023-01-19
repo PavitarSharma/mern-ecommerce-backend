@@ -1,4 +1,5 @@
 import User from "../models/User.model.js";
+import asyncHandler from "express-async-handler";
 
 export const getUser = async (req, res, next) => {
   try {

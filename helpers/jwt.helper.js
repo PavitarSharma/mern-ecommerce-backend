@@ -3,19 +3,32 @@ import createError from "http-errors";
 
 export const signAccessToken = (user) => {
   return new Promise((resolve, reject) => {
-    const payload = {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-      roles: user.roles,
-    };
+    let userInfo;
+    if (user.store) {
+      userInfo = {
+        UserInfo: {
+          userId: user._id,
+          roles: user.roles,
+          email: user.email,
+          storeId: user.store,
+        },
+      };
+    } else {
+      userInfo = {
+        UserInfo: {
+          userId: user._id,
+          roles: user.roles,
+          email: user.email,
+        },
+      };
+    }
 
     const secret = process.env.ACCESS_TOKEN_SECRET;
     const options = {
       expiresIn: "1h",
       issuer: "www.e-shop.com",
     };
-    jwt.sign(payload, secret, options, (err, token) => {
+    jwt.sign(userInfo, secret, options, (err, token) => {
       if (err) {
         reject(createError.InternalServerError());
       }
@@ -24,11 +37,12 @@ export const signAccessToken = (user) => {
   });
 };
 
+
+
 export const signRefreshToken = (user) => {
   return new Promise((resolve, reject) => {
     const payload = {
       id: user._id,
-      username: user.username,
       email: user.email,
       roles: user.roles,
     };

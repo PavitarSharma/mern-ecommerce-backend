@@ -1,7 +1,10 @@
 ./tmp
 ./node_modules
 ./env
-
+.DS_Store
+node_modules
 .env
 .node_modules
 tmp
+
+.env-*

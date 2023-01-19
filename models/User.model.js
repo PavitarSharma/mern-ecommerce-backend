@@ -112,11 +112,12 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
 
+    refreshToken: [String],
+
     blocked: {
       type: Boolean,
       default: false,
     },
-
   },
   {
     timestamps: true,
@@ -140,6 +141,21 @@ userSchema.methods.isValidPassword = async function (password) {
   } catch (error) {
     throw error;
   }
+};
+
+userSchema.methods.getResetToken = function () {
+  // Generating token
+  const resetToken = crypto.randomBytes(20).toString("hex");
+
+  //    hashing and adding resetPasswordToken to userSchema
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  this.resetPasswordTime = Date.now() + 15 * 60 * 1000;
+
+  return resetToken;
 };
 
 const User = mongoose.model("User", userSchema);
