@@ -2,8 +2,10 @@ import Category from "../models/Category.model.js";
 import createError from "http-errors";
 import asyncHandler from "express-async-handler";
 import ErrorHandler from "../helpers/errorHandler.js";
+import Product from "../models/Product.model.js";
 
 export const addCategory = asyncHandler(async (req, res) => {
+  req.body.addedBy = req.userInfo.userId;
   const category = await Category.create(req.body);
   res.status(201).json({
     success: true,
@@ -31,6 +33,7 @@ export const getSingleCategory = asyncHandler(async (req, res, next) => {
 });
 
 export const updateCategory = asyncHandler(async (req, res) => {
+  req.body.updatedBy = req.userInfo.userId;
   let category = await Category.findById(req.params.id);
   if (!category) {
     throw createError.NotFound("Category not found");
@@ -51,6 +54,10 @@ export const deleteCategory = asyncHandler(async (req, res) => {
   if (!category) {
     throw createError.NotFound("Category not found");
   }
+
+  const active = await Product.findOne({ category: req.params.id });
+  if (active)
+    return next(new ErrorHandler("Category is used.Could not deleted.", 406));
 
   await category.remove();
   res.status(200).json({

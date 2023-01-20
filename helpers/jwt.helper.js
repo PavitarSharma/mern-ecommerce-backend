@@ -61,7 +61,7 @@ export const signRefreshToken = (user) => {
   });
 };
 
-export const verifyAccessToken = (req, res, next) => {
+/*export const verifyAccessToken = (req, res, next) => {
   const authHeader = req.headers.authorization || req.headers.Authorization;
 
   if (!authHeader?.startsWith("Bearer ")) {
@@ -77,4 +77,4 @@ export const verifyAccessToken = (req, res, next) => {
     req.payload = payload;
     next();
   });
-};
+};*/

@@ -2,8 +2,10 @@ import Brand from "../models/Brand.model.js";
 import createError from "http-errors";
 import asyncHandler from "express-async-handler";
 import ErrorHandler from "../helpers/errorHandler.js";
+import Product from "../models/Product.model.js";
 
 export const addBrand = asyncHandler(async (req, res) => {
+  req.body.addedBy = req.userInfo.userId;
   const brand = await Brand.create(req.body);
   res.status(201).json({
     success: true,
@@ -31,6 +33,7 @@ export const getSingleBrand = asyncHandler(async (req, res, next) => {
 });
 
 export const updateBrand = asyncHandler(async (req, res) => {
+  req.body.updatedBy = req.userInfo.userId;
   let brand = await Brand.findById(req.params.id);
   if (!brand) {
     throw createError.NotFound("Brand not found");
@@ -51,6 +54,10 @@ export const deleteBrand = asyncHandler(async (req, res) => {
   if (!brand) {
     throw createError.NotFound("Brand not found");
   }
+
+  const active = await Product.findOne({ brand: req.params.id });
+  if (active)
+    return next(new ErrorHandler("Brand is used.Could not deleted.", 406));
 
   await Brand.remove();
   res.status(200).json({

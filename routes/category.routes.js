@@ -6,15 +6,19 @@ import {
   getSingleCategory,
   updateCategory,
 } from "../controllers/category.controller.js";
+import { authorizeRoles, isAuthintacted } from "../middlewares/auth.js";
 
 const router = express.Router();
 
-router.route("/categories").post(addCategory).get(getCategories);
+router
+  .route("/categories")
+  .post(isAuthintacted, authorizeRoles("admin"), addCategory)
+  .get(getCategories);
 
 router
   .route("/categories/:id")
   .get(getSingleCategory)
-  .put(updateCategory)
-  .delete(deleteCategory);
+  .put(isAuthintacted, authorizeRoles("admin"), updateCategory)
+  .delete(isAuthintacted, authorizeRoles("admin"), deleteCategory);
 
 export default router;

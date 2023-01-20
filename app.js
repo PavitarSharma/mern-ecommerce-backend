@@ -1,7 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
-import path from "path"
+import path from "path";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import helmet from "helmet";
@@ -15,11 +15,9 @@ import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/auth.routes.js";
 import categoryRoutes from "./routes/category.routes.js";
 import brandRoutes from "./routes/brand.routes.js";
-
-import { verifyAccessToken } from "./helpers/jwt.helper.js";
 import { errorMiddleware } from "./middlewares/error.js";
 
-dotenv.config({ path: "config/config.env"});
+dotenv.config({ path: "config/config.env" });
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -27,13 +25,7 @@ const PORT = process.env.PORT || 5000;
 app.use(helmet());
 
 // CORS: Handle CORS Error
-app.use(
-  cors({
-    origin: ["http://localhost:3000", "*"],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    credentials: true,
-  })
-);
+app.use(cors());
 app.use(morgan("dev"));
 
 // MongoDB Connection
@@ -63,7 +55,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(fileUpload({ useTempFiles: true }));
 
-app.get("/", verifyAccessToken, (req, res, next) => {
+app.get("/", (req, res, next) => {
   res.json({ message: "Server Started Successfully..." });
 });
 
