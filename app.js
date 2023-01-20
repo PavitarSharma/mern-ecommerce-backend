@@ -1,6 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
+import path from "path"
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import helmet from "helmet";
@@ -18,7 +19,7 @@ import brandRoutes from "./routes/brand.routes.js";
 import { verifyAccessToken } from "./helpers/jwt.helper.js";
 import { errorMiddleware } from "./middlewares/error.js";
 
-dotenv.config();
+dotenv.config({ path: "config/config.env"});
 const app = express();
 const PORT = process.env.PORT || 5000;
 
