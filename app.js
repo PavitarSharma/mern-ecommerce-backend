@@ -17,7 +17,7 @@ import categoryRoutes from "./routes/category.routes.js";
 import brandRoutes from "./routes/brand.routes.js";
 import { errorMiddleware } from "./middlewares/error.js";
 
-dotenv.config({ path: "config/config.env" });
+dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 

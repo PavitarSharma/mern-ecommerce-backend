@@ -17,10 +17,10 @@ export const getAllUsers = async (req, res, next) => {
   } catch (error) {}
 };
 
-export const updateUser = async (req, res, next) => {
+export const updateUser = asyncHandler(async (req, res, next) => {
   try {
     res.json({
       message: "Update User",
     });
   } catch (error) {}
-};
+});

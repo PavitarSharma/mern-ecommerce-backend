@@ -1,6 +1,7 @@
 import User from "../models/User.model.js";
 import cloudinary from "../helpers/cloudinary.js";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import asyncHandler from "express-async-handler";
 import {
   signInSchema,
@@ -14,8 +15,6 @@ import sendMail from "../helpers/sendMail.js";
 
 const cookieOption = {
   httpOnly: true, //accessible only by web server
-  secure: true, //https
-  sameSite: "None", //cross-site cookie
   maxAge: 24 * 60 * 60 * 1000, //cookie expiry: set to match rT
 };
 
@@ -210,7 +209,7 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
 
   const resetPasswordUrl = `${req.protocol}://${req.get(
     "host"
-  )}/password/reset/${resetToken}`;
+  )}/api/v1/auth/password/reset/${resetToken}`;
 
   const message = `Your password reset token is :- \n\n ${resetPasswordUrl}`;
 
@@ -226,6 +225,7 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
       message: `Email sent to ${user.email} succesfully`,
     });
   } catch (error) {
+    console.log(error);
     user.resetPasswordToken = undefined;
     user.resetPasswordTime = undefined;
 
@@ -265,7 +265,7 @@ export const resetPassword = async (req, res, next) => {
     }
 
     user.password = req.body.password;
-    // const accessToken = await signAccessToken(user);
+    const accessToken = await signAccessToken(user);
     // const refreshToken = await signRefreshToken(user);
 
     user.resetPasswordToken = undefined;
@@ -273,10 +273,11 @@ export const resetPassword = async (req, res, next) => {
 
     await user.save();
     // res.cookie("jwt", refreshToken, cookieOption);
-    res.send(200).json({
+    res.status(201).json({
       success: true,
-      message: "Reset Password"
+      message: "Reset Password",
     });
+    
   } catch (error) {
     res.send(500).json({
       success: true,

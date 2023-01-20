@@ -9,6 +9,7 @@ import {
   signUp,
   updatePassword,
 } from "../controllers/auth.controller.js";
+import { isAuthintacted } from "../middlewares/auth.js";
 import fileExtLimiter from "../middlewares/fileExtLimiter.js";
 import fileSizeLimiter from "../middlewares/fileSizeLimiter.js";
 import filesPayloadExists from "../middlewares/filesPayloadExists.js";
@@ -31,10 +32,10 @@ router.post("/login-otp", loginWithOTP);
 
 router.post("/password/forgot", forgotPassword);
 
-router.post("/password/reset/:token", resetPassword);
+router.put("/password/reset/:token", resetPassword);
 
-router.post("/password/update", updatePassword);
+router.put("/password/update", updatePassword);
 
-router.post("/logout", logout);
+router.post("/logout",isAuthintacted, logout);
 
 export default router;
