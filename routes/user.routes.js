@@ -1,19 +1,31 @@
 import express from "express";
 import {
+  deleteUser,
   getAllUsers,
-  getUser,
+  getUserDetails,
   updateUser,
+  updateUserRole,
 } from "../controllers/user.controller.js";
-import { isAuthintacted } from "../middlewares/auth.js";
+import { authorizeRoles, isAuthintacted } from "../middlewares/auth.js";
+import fileExtLimiter from "../middlewares/fileExtLimiter.js";
+import fileSizeLimiter from "../middlewares/fileSizeLimiter.js";
 
 const router = express.Router();
 
+router.get("/", isAuthintacted, authorizeRoles("admin"), getAllUsers);
 
+router
+  .route("/:id")
+  .get(isAuthintacted, getUserDetails)
+  .put(isAuthintacted, authorizeRoles("admin"), updateUserRole)
+  .delete(isAuthintacted, authorizeRoles("admin"), deleteUser);
 
-router.get("/", getAllUsers);
-
-router.post("/:id", getUser);
-
-router.put("/:id",isAuthintacted, updateUser);
+router.put(
+  "/update",
+  isAuthintacted,
+  fileExtLimiter([".png", ".jpg", ".jpeg", ".JPG", ".JPEG", ".PNG", ".gif"]),
+  fileSizeLimiter,
+  updateUser
+);
 
 export default router;

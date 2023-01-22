@@ -12,7 +12,7 @@ import fileUpload from "express-fileupload";
 
 // routes
 import authRoutes from "./routes/auth.routes.js";
-import userRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
 import categoryRoutes from "./routes/category.routes.js";
 import brandRoutes from "./routes/brand.routes.js";
 import { errorMiddleware } from "./middlewares/error.js";
@@ -61,7 +61,7 @@ app.get("/", (req, res, next) => {
 
 //routes
 app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/users", userRoutes);
 app.use("/api/v1", categoryRoutes);
 app.use("/api/v1", brandRoutes);
 
