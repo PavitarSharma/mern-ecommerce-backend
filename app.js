@@ -15,6 +15,7 @@ import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import categoryRoutes from "./routes/category.routes.js";
 import brandRoutes from "./routes/brand.routes.js";
+import storeRoutes from "./routes/store.routes.js"
 import { errorMiddleware } from "./middlewares/error.js";
 
 dotenv.config();
@@ -64,6 +65,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1", categoryRoutes);
 app.use("/api/v1", brandRoutes);
+app.use("/api/v1", storeRoutes);
 
 app.use(async (req, res, next) => {
   next(createError.NotFound());
